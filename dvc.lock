@@ -1,0 +1,90 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/data_ingestion.py
+    deps:
+    - path: src/data_ingestion.py
+      hash: md5
+      md5: 178c5a3eb97b5ebdaf64bc52a40fa7ab
+      size: 3660
+    params:
+      params.yaml:
+        data_ingestion.test_size: 0.2
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 1a287d34dc172d9f950c03dae35f7e73.dir
+      size: 484846
+      nfiles: 2
+  data_preprocessing:
+    cmd: python src/data_preprocessing.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 1a287d34dc172d9f950c03dae35f7e73.dir
+      size: 484846
+      nfiles: 2
+    - path: src/data_preprocessing.py
+      hash: md5
+      md5: a32035f4ea42cc8d07b15a620086ace1
+      size: 3933
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: d99be5cb2b019d747166f90739fa6d08.dir
+      size: 260073
+      nfiles: 2
+  feature_engineering:
+    cmd: python src/feature_engineering.py
+    deps:
+    - path: data/interim
+      hash: md5
+      md5: d99be5cb2b019d747166f90739fa6d08.dir
+      size: 260073
+      nfiles: 2
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: 4fd6cdae0a4206ed563c6370954f2e38
+      size: 3924
+    params:
+      params.yaml:
+        feature_engineering.max_features: 35
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: a8c07e8093dadb60b7a4d952b7a27628.dir
+      size: 834750
+      nfiles: 2
+  model_training:
+    cmd: python src/model_training.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: a8c07e8093dadb60b7a4d952b7a27628.dir
+      size: 834750
+      nfiles: 2
+    - path: src/model_training.py
+      hash: md5
+      md5: e58226f1d552fcf8ca2b8d1b046f7d8c
+      size: 3989
+    params:
+      params.yaml:
+        model_training.n_estimators: 22
+        model_training.random_state: 2
+    outs:
+    - path: models/random_forest_model.pkl
+      hash: md5
+      md5: e9fed3b91b1be274aa8aabeff1a4809e
+      size: 720146
+  model_evaluation:
+    cmd: python src/model_evaluation.py
+    deps:
+    - path: models/random_forest_model.pkl
+      hash: md5
+      md5: e9fed3b91b1be274aa8aabeff1a4809e
+      size: 720146
+    outs:
+    - path: reports/metrics.json
+      hash: md5
+      md5: abba219d58644dde3de017d8eedbd8b8
+      size: 145
